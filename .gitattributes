@@ -1,0 +1,9 @@
+# Force LF for every text file, in both the stored blob and the checked-out working tree,
+# regardless of each contributor's own core.autocrlf. Without this, Windows' Git default
+# (core.autocrlf=true) treats every text file as "due for CRLF conversion" relative to the LF
+# blobs already committed here, so `git status` shows a phantom diff on files nothing actually
+# changed in — content-identical, but flagged modified anyway. Also what keeps a shebang script
+# (`.sh`, `.mjs`) executable: a CRLF checkout breaks `#!/usr/bin/env` on Unix and the bash
+# interpreter, regardless of core.autocrlf.
+* text=auto eol=lf
+

@@ -1,0 +1,70 @@
+{
+	"name": "@jurijsk/codon-capture",
+	"version": "0.1.0",
+	"description": "Capture a web page as a folder that works offline, interactions included, and pack it into one self-serving HTML file that needs no server. A CLI and a library; drives a local Chrome or Edge.",
+	"keywords": [
+		"capture",
+		"mirror",
+		"offline",
+		"puppeteer",
+		"single-file",
+		"web-archive"
+	],
+	"homepage": "https://github.com/jurijsk/codon-capture#readme",
+	"bugs": {
+		"url": "https://github.com/jurijsk/codon-capture/issues"
+	},
+	"license": "PolyForm-Noncommercial-1.0.0",
+	"author": "Jurijs Kovzels",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/jurijsk/codon-capture.git"
+	},
+	"bin": {
+		"codon-capture": "dist/cli.js"
+	},
+	"files": [
+		"dist",
+		"README.md",
+		"CHANGELOG.md"
+	],
+	"type": "module",
+	"main": "./dist/index.js",
+	"types": "./dist/index.d.ts",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.js"
+		},
+		"./pack": {
+			"types": "./dist/pack.d.ts",
+			"import": "./dist/pack.js"
+		},
+		"./drive": {
+			"types": "./dist/drive.d.ts",
+			"import": "./dist/drive.js"
+		}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"build": "tsc -p tsconfig.json && tsc -p tsconfig.loader.json",
+		"typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.loader.json --noEmit",
+		"clean": "node -e \"import('node:fs').then((fs)=>fs.rmSync('dist',{recursive:true,force:true}))\"",
+		"prepublishOnly": "npm run clean && npm run build && npm test",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"puppeteer-core": "^25.5.0"
+	},
+	"devDependencies": {
+		"@types/node": "^22.19.19",
+		"jsdom": "^29.1.1",
+		"typescript": "^5.9.2",
+		"vitest": "^4.1.6"
+	},
+	"engines": {
+		"node": ">=22.12"
+	}
+}

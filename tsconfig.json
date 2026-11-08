@@ -1,0 +1,24 @@
+{
+	// The Node side: capture, drive, pack and the CLI, built to dist/. Node (22.18+) also runs these
+	// sources directly by erasing their types (`node src/cli.ts …`), which is why
+	// `erasableSyntaxOnly` and `verbatimModuleSyntax`, and why relative imports name the .ts file
+	// (`rewriteRelativeImportExtensions` turns them into .js in dist/). Both libs: page.evaluate
+	// callbacks run in the browser. loader.ts is browser code built by tsconfig.loader.json.
+	"compilerOptions": {
+		"target": "ES2024",
+		"lib": ["ES2024", "DOM", "DOM.Iterable"],
+		"types": ["node"],
+		"module": "nodenext",
+		"moduleResolution": "nodenext",
+		"allowImportingTsExtensions": true,
+		"rewriteRelativeImportExtensions": true,
+		"erasableSyntaxOnly": true,
+		"verbatimModuleSyntax": true,
+		"strict": true,
+		"declaration": true,
+		"outDir": "dist",
+		"rootDir": "src"
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": ["src/loader.ts"]
+}

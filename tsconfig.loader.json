@@ -1,0 +1,20 @@
+{
+	// loader.ts, the runtime a packed page carries: built to dist/loader.js, which pack.ts reads as
+	// text and embeds in every packed page as a classic <script>. So no module syntax may survive
+	// (`moduleDetection: legacy` keeps a file that imports nothing a script) and no source map
+	// comment either. `alwaysStrict: false`: the output is exactly what pack.ts compiles from
+	// source, with no "use strict" added to change how the loader runs.
+	"compilerOptions": {
+		"target": "ES2022",
+		"lib": ["ES2024", "DOM", "DOM.Iterable"],
+		"types": [],
+		"module": "preserve",
+		"moduleDetection": "legacy",
+		"strict": true,
+		"alwaysStrict": false,
+		"removeComments": false,
+		"outDir": "dist",
+		"rootDir": "src"
+	},
+	"files": ["src/loader.ts"]
+}
