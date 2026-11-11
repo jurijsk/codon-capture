@@ -1,7 +1,7 @@
 /**
  * capture.ts — archive a web page as a FOLDER that works offline, interactions included.
  *
- *   codon-capture <url> <out-dir> [--keep-tracking] [--no-drive] [--rounds N]
+ *   gooder-capture <url> <out-dir> [--keep-tracking] [--no-drive] [--rounds N]
  *
  * Why a folder and not one file (docs/html-documents-plan.md, "Direction"): a page's scripts
  * fetch what they need by relative URL at runtime — JSON for a figure, a thumbnail per click, a
@@ -84,7 +84,7 @@ for (let i = 0; i < args.length; i += 1) {
 const [pageUrlArg, outDirArg] = positional;
 if (!pageUrlArg || !outDirArg) {
 	console.error(
-		'usage: codon-capture <url> <out-dir> [--keep-tracking] [--no-drive] [--rounds N] [--max-files N] [--max-total-mb N] [--max-file-mb N] [--deny <regex>] [--max-pages N] [--mirror-remote] [--refresh] [--trail]',
+		'usage: gooder-capture <url> <out-dir> [--keep-tracking] [--no-drive] [--rounds N] [--max-files N] [--max-total-mb N] [--max-file-mb N] [--deny <regex>] [--max-pages N] [--mirror-remote] [--refresh] [--trail]',
 	);
 	process.exit(2);
 }
@@ -493,7 +493,7 @@ async function phaseStatic() {
 			let u = raw;
 			try {
 				const parsed = new URL(raw);
-				if (parsed.origin !== PAGE_URL.origin && (parsed.protocol === 'file:' || /^(https?:\/\/)?(127\.0\.0\.1|localhost)(:|$)/.test(parsed.host) || parsed.host === 'codon-archive.invalid')) {
+				if (parsed.origin !== PAGE_URL.origin && (parsed.protocol === 'file:' || /^(https?:\/\/)?(127\.0\.0\.1|localhost)(:|$)/.test(parsed.host) || parsed.host === 'gooder-capture.invalid')) {
 					u = new URL(parsed.pathname + parsed.search, PAGE_URL.origin).href;
 				}
 			} catch {

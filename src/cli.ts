@@ -1,10 +1,10 @@
 #!/usr/bin/env node
 /**
- * cli.ts — the `codon-capture` command:
+ * cli.ts — the `gooder-capture` command:
  *
- *   codon-capture <url> <out-dir> [options]                              capture a page as a folder (capture.ts)
- *   codon-capture pack <archive-dir> <out.html> [--entry F] [--origin URL] [--verify]   pack the folder into one file
- *   codon-capture drive <url | file.html> [--json]                       exercise a page, report what it loaded
+ *   gooder-capture <url> <out-dir> [options]                              capture a page as a folder (capture.ts)
+ *   gooder-capture pack <archive-dir> <out.html> [--entry F] [--origin URL] [--verify]   pack the folder into one file
+ *   gooder-capture drive <url | file.html> [--json]                       exercise a page, report what it loaded
  *
  * capture.ts is a script that reads its own arguments, so a command that is neither `pack` nor
  * `drive` runs it as it is.
@@ -15,9 +15,9 @@ import { packArchive, readFolder } from './pack.ts';
 import { drive, launchBrowser, serveFile } from './drive.ts';
 
 const USAGE = `usage:
-  codon-capture <url> <out-dir> [--trail] [--keep-tracking] [--no-drive] [--rounds N] [--max-files N] [--max-total-mb N] [--max-file-mb N] [--max-pages N] [--deny <regex>] [--mirror-remote] [--refresh] [--fetch-list <file>]
-  codon-capture pack <archive-dir> <out.html> [--entry index.html] [--origin URL] [--verify]
-  codon-capture drive <url | file.html> [--json]`;
+  gooder-capture <url> <out-dir> [--trail] [--keep-tracking] [--no-drive] [--rounds N] [--max-files N] [--max-total-mb N] [--max-file-mb N] [--max-pages N] [--deny <regex>] [--mirror-remote] [--refresh] [--fetch-list <file>]
+  gooder-capture pack <archive-dir> <out.html> [--entry index.html] [--origin URL] [--verify]
+  gooder-capture drive <url | file.html> [--json]`;
 
 const [command, ...rest] = process.argv.slice(2);
 if (!command || command === '--help' || command === '-h' || command === 'help') {
@@ -47,7 +47,7 @@ async function packCommand(args: string[]): Promise<void> {
 	}
 	const [dir, outPath] = positional;
 	if (!dir || !outPath) {
-		console.error('usage: codon-capture pack <archive-dir> <out.html> [--entry index.html] [--origin URL] [--verify]');
+		console.error('usage: gooder-capture pack <archive-dir> <out.html> [--entry index.html] [--origin URL] [--verify]');
 		process.exit(2);
 	}
 	const reportPath = join(dir, 'archive-report.json');
@@ -81,7 +81,7 @@ async function packCommand(args: string[]): Promise<void> {
 			const missesPath = join(dir, 'pack-misses.json');
 			writeFileSync(missesPath, JSON.stringify({ packedAt: new Date().toISOString(), misses, requests: r.requests }, null, '\t') + '\n');
 			if (misses.length || r.requests.length) {
-				console.log(`incomplete — misses written to ${missesPath}; close the loop with:\n  codon-capture ${origin} ${dir} --fetch-list ${missesPath}\n  codon-capture pack ${dir} ${outPath} --verify`);
+				console.log(`incomplete — misses written to ${missesPath}; close the loop with:\n  gooder-capture ${origin} ${dir} --fetch-list ${missesPath}\n  gooder-capture pack ${dir} ${outPath} --verify`);
 			}
 			process.exit(misses.length || r.requests.length ? 1 : 0);
 		} finally {
@@ -94,7 +94,7 @@ async function packCommand(args: string[]): Promise<void> {
 async function driveCommand(args: string[]): Promise<void> {
 	const target = args.find((a) => !a.startsWith('--'));
 	if (!target) {
-		console.error('usage: codon-capture drive <url | file.html> [--json]');
+		console.error('usage: gooder-capture drive <url | file.html> [--json]');
 		process.exit(2);
 	}
 	const browser = await launchBrowser();

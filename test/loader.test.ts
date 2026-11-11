@@ -28,15 +28,15 @@ beforeAll(() => {
 		return u;
 	};
 	document.head.innerHTML =
-		`<script data-codon-archive data-origin="https://site.example/paper/" data-entry="paper/index.html"></script>` +
-		`<script type="text/plain" data-codon-file="paper/data/x.json" data-type="application/json" data-enc="text">${escapeTextBlock('{"a":"</x>"}')}</script>` +
-		`<script type="text/plain" data-codon-file="paper/pic.png" data-type="image/png" data-enc="base64">iVA=</script>` +
-		`<script type="text/plain" data-codon-file="_remote/fonts.example/f.woff2" data-type="font/woff2" data-enc="base64">AAEC</script>`;
+		`<script data-gooder-capture data-origin="https://site.example/paper/" data-entry="paper/index.html"></script>` +
+		`<script type="text/plain" data-gooder-capture-file="paper/data/x.json" data-type="application/json" data-enc="text">${escapeTextBlock('{"a":"</x>"}')}</script>` +
+		`<script type="text/plain" data-gooder-capture-file="paper/pic.png" data-type="image/png" data-enc="base64">iVA=</script>` +
+		`<script type="text/plain" data-gooder-capture-file="_remote/fonts.example/f.woff2" data-type="font/woff2" data-enc="base64">AAEC</script>`;
 	// currentScript is null when run this way; the loader then needs the config from somewhere:
 	// mimic the parser by pointing currentScript at our config element.
-	Object.defineProperty(document, 'currentScript', { value: document.querySelector('[data-codon-archive]'), configurable: true });
+	Object.defineProperty(document, 'currentScript', { value: document.querySelector('[data-gooder-capture]'), configurable: true });
 	new Function(LOADER_SOURCE)();
-	archive = (window as unknown as { __codonArchive: Archive }).__codonArchive;
+	archive = (window as unknown as { __gooderCapture: Archive }).__gooderCapture;
 });
 
 describe('resolution', () => {
@@ -48,9 +48,9 @@ describe('resolution', () => {
 		expect(archive.has('https://fonts.example/f.woff2')).toBe(true);
 	});
 	it('gives the document a base on a host that exists nowhere, and maps that host like the origin', () => {
-		expect(document.querySelector('base')!.getAttribute('href')).toBe('https://codon-archive.invalid/paper/index.html');
-		expect(archive.has('https://codon-archive.invalid/paper/pic.png')).toBe(true);
-		expect(archive.has('https://codon-archive.invalid/paper/nope.png')).toBe(false);
+		expect(document.querySelector('base')!.getAttribute('href')).toBe('https://gooder-capture.invalid/paper/index.html');
+		expect(archive.has('https://gooder-capture.invalid/paper/pic.png')).toBe(true);
+		expect(archive.has('https://gooder-capture.invalid/paper/nope.png')).toBe(false);
 		expect(archive.misses).toContain('https://site.example/paper/nope.png'); // recorded as the origin's URL
 	});
 	it("maps the document's own origin too (scripts that build URLs from location.origin)", () => {
@@ -174,14 +174,14 @@ describe('links within the page', () => {
 
 describe('ES modules', () => {
 	it('builds an import map from module keys to their blobs, on the alias host and the origin', () => {
-		document.head.insertAdjacentHTML('beforeend', `<script type="text/plain" data-codon-file="paper/m.js" data-type="text/javascript" data-enc="text">export const m = 1</script>`);
+		document.head.insertAdjacentHTML('beforeend', `<script type="text/plain" data-gooder-capture-file="paper/m.js" data-type="text/javascript" data-enc="text">export const m = 1</script>`);
 		document.dispatchEvent(new Event('DOMContentLoaded')); // the loader re-reads the VFS on it
 		const imports = (archive as unknown as { importMap(keys: string[]): Record<string, string> }).importMap(['paper/m.js', 'paper/absent.js']);
 		const el = document.querySelector('script[type="importmap"]')!;
 		const map = JSON.parse(el.textContent!) as { imports: Record<string, string> };
 		expect(map.imports).toEqual(imports);
-		expect(map.imports['https://codon-archive.invalid/paper/m.js']).toMatch(/^blob:test\/\d+-text\/javascript$/);
-		expect(map.imports['https://site.example/paper/m.js']).toBe(map.imports['https://codon-archive.invalid/paper/m.js']);
+		expect(map.imports['https://gooder-capture.invalid/paper/m.js']).toMatch(/^blob:test\/\d+-text\/javascript$/);
+		expect(map.imports['https://site.example/paper/m.js']).toBe(map.imports['https://gooder-capture.invalid/paper/m.js']);
 		expect(Object.keys(map.imports)).toHaveLength(2); // the absent module is simply not mapped
 	});
 });

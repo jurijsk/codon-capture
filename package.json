@@ -1,6 +1,6 @@
 {
-	"name": "@jurijsk/codon-capture",
-	"version": "0.1.0",
+	"name": "gooder-capture",
+	"version": "0.2.0",
 	"description": "Capture a web page as a folder that works offline, interactions included, and pack it into one self-serving HTML file that needs no server. A CLI and a library; drives a local Chrome or Edge.",
 	"keywords": [
 		"capture",
@@ -10,18 +10,18 @@
 		"single-file",
 		"web-archive"
 	],
-	"homepage": "https://git.daina-labs.io/core/codon-capture",
+	"homepage": "https://github.com/jurijsk/gooder-capture",
 	"bugs": {
-		"url": "https://git.daina-labs.io/core/codon-capture/-/issues"
+		"url": "https://github.com/jurijsk/gooder-capture/issues"
 	},
 	"license": "PolyForm-Noncommercial-1.0.0",
 	"author": "Jurijs Kovzels",
 	"repository": {
 		"type": "git",
-		"url": "git+https://git.daina-labs.io/core/codon-capture.git"
+		"url": "git+https://github.com/jurijsk/gooder-capture.git"
 	},
 	"bin": {
-		"codon-capture": "dist/cli.js"
+		"gooder-capture": "dist/cli.js"
 	},
 	"files": [
 		"dist",

@@ -78,23 +78,23 @@ describe('packArchive', () => {
 	const html = result.html;
 
 	it('puts the loader first in <head>, configured with origin and entry', () => {
-		const at = html.indexOf('<script data-codon-archive');
+		const at = html.indexOf('<script data-gooder-capture');
 		expect(at).toBeGreaterThan(0);
 		expect(at).toBeLessThan(html.indexOf('<title>'));
 		expect(html).toContain(`data-origin="${ORIGIN}" data-entry="paper/index.html"`);
-		expect(html).toContain('window.__codonArchive');
+		expect(html).toContain('window.__gooderCapture');
 	});
 
 	it('embeds every other file as an inert block, text escaped and binaries base64', () => {
 		expect(result.files).toBe(5);
-		expect(html).toContain('<script type="text/plain" data-codon-file="paper/data/x.json" data-type="application/json" data-enc="text">{"a":1}</script>');
-		expect(html).toContain('data-codon-file="paper/pic.png" data-type="image/png" data-enc="base64">iVA=</script>');
-		expect(html).toContain('data-codon-file="paper/app.js" data-type="text/javascript" data-enc="text">console.log("<\\/script> inside");</script>');
+		expect(html).toContain('<script type="text/plain" data-gooder-capture-file="paper/data/x.json" data-type="application/json" data-enc="text">{"a":1}</script>');
+		expect(html).toContain('data-gooder-capture-file="paper/pic.png" data-type="image/png" data-enc="base64">iVA=</script>');
+		expect(html).toContain('data-gooder-capture-file="paper/app.js" data-type="text/javascript" data-enc="text">console.log("<\\/script> inside");</script>');
 	});
 
 	it('inlines the entry stylesheet (with its url() as data:) and script, escaped', () => {
-		expect(html).toContain('<style data-codon-inlined-from="style.css?v=2">\nbody { background: url("data:image/png;base64,iVA=") }\n</style>');
-		expect(html).toContain('<script data-codon-inlined-from="app.js">\nconsole.log("<\\/script> inside");\n</script>');
+		expect(html).toContain('<style data-gooder-capture-inlined-from="style.css?v=2">\nbody { background: url("data:image/png;base64,iVA=") }\n</style>');
+		expect(html).toContain('<script data-gooder-capture-inlined-from="app.js">\nconsole.log("<\\/script> inside");\n</script>');
 		expect(html).not.toContain('<link rel="stylesheet"');
 	});
 
@@ -104,7 +104,7 @@ describe('packArchive', () => {
 	});
 
 	it('gives a nested HTML file its own loader, with its own entry path', () => {
-		const block = /data-codon-file="paper\/frame\/index.html"[^>]*>([\s\S]*?)<\/script>/.exec(html)!;
+		const block = /data-gooder-capture-file="paper\/frame\/index.html"[^>]*>([\s\S]*?)<\/script>/.exec(html)!;
 		expect(block[1]).toContain('data-entry="paper/frame/index.html"');
 		expect(block[1]).toContain('nested');
 	});
@@ -115,7 +115,7 @@ describe('packArchive', () => {
 });
 
 describe('ES modules', () => {
-	const ALIAS = 'https://codon-archive.invalid';
+	const ALIAS = 'https://gooder-capture.invalid';
 	it('rewrites relative specifiers the archive holds to the alias host, query dropped, and names them', () => {
 		const f = files({ 'paper/assets/a.js': '', 'paper/assets/lib/t.js': '', 'paper/b.js': '' });
 		const code = `import { a } from "./lib/t.js?v=2";\nimport '../b.js';\nexport * from './lib/t.js';\nconst x = import("./nope.js");\nimport y from 'bare';\nimport z from "https://cdn.example/z.js";`;
@@ -145,9 +145,9 @@ describe('ES modules', () => {
 		expect(r.html).toContain(`import '${ALIAS}/paper/assets/lib/t.js'`);
 		expect(r.modules).toEqual(['paper/assets/a.js', 'paper/assets/b.js', 'paper/assets/lib/t.js']); // c.js is inlined into the page: only what it imports needs a block
 		expect(r.html).toContain(`import * as T from "${ALIAS}/paper/assets/lib/t.js"`); // the embedded copy of a.js
-		const call = r.html.indexOf('window.__codonArchive.importMap(');
-		expect(call).toBeGreaterThan(r.html.indexOf('data-codon-file="paper/assets/lib/t.js"'));
-		expect(call).toBeLessThan(r.html.indexOf('data-codon-file="paper/other.js"'));
+		const call = r.html.indexOf('window.__gooderCapture.importMap(');
+		expect(call).toBeGreaterThan(r.html.indexOf('data-gooder-capture-file="paper/assets/lib/t.js"'));
+		expect(call).toBeLessThan(r.html.indexOf('data-gooder-capture-file="paper/other.js"'));
 		expect(r.html).toContain(JSON.stringify(r.modules));
 		expect(f.get('paper/assets/a.js')!.bytes).toEqual(enc('import * as T from "./lib/t.js"; export const a = T;').bytes); // the caller's map is untouched
 		expect(r.files).toBe(5);
@@ -155,7 +155,7 @@ describe('ES modules', () => {
 	it('emits no import map when the page has no modules', () => {
 		const r = packArchive({ files: files({ 'paper/index.html': '<html><head></head><body><script>1</script></body></html>', 'paper/x.js': 'x' }), entry: 'paper/index.html', origin: ORIGIN });
 		expect(r.modules).toEqual([]);
-		expect(r.html).not.toContain('window.__codonArchive.importMap(');
+		expect(r.html).not.toContain('window.__gooderCapture.importMap(');
 	});
 });
 

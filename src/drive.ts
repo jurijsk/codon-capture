@@ -1,16 +1,16 @@
 /**
  * drive.ts — exercise a page in a real browser the way a reader would, and report what it loads.
  *
- *   codon-capture drive <url | file.html> [--json]
+ *   gooder-capture drive <url | file.html> [--json]
  *
  * Headless Chrome (puppeteer-core, a local Chrome or Edge) opens the page, scrolls to the end,
  * clicks every button and control, hovers every figure hotspot, waits, and reports every request
  * the page made: which ones went to the network, which failed, and — for a page packed by pack.ts —
- * what its loader could not find (`window.__codonArchive.misses`). A packed page that is complete
+ * what its loader could not find (`window.__gooderCapture.misses`). A packed page that is complete
  * shows no network requests beyond the file itself and no misses.
  *
- * Used by capture.ts (the drive phase of archiving) and by `codon-capture pack --verify` (cli.ts). No dependency on
- * either, on Codon or on VS Code.
+ * Used by capture.ts (the drive phase of archiving) and by `gooder-capture pack --verify` (cli.ts). No editor
+ * dependency.
  */
 import { existsSync } from 'node:fs';
 import { pathToFileURL } from 'node:url';
@@ -227,7 +227,7 @@ export async function exercise(page: Page | Frame, { skip = [] }: { skip?: strin
 		}
 		await sleep(2500);
 		window.scrollTo(0, 0);
-		const archive = (window as Window & { __codonArchive?: { hits: number; misses: string[] } }).__codonArchive;
+		const archive = (window as Window & { __gooderCapture?: { hits: number; misses: string[] } }).__gooderCapture;
 		return { scrollHeight: h, passes, clicked, steps, hovered, exhausted, overBudget: overBudget(), archive: archive ? { hits: archive.hits, misses: archive.misses } : null };
 	}, skip);
 }
@@ -246,9 +246,9 @@ export async function drive(browser: Browser, url: string, { onRequest }: { onRe
 	const notFound = new Set<string>();
 	const navigations = new Set<string>();
 	// A packed page's loader gives the document a base on a host that exists nowhere
-	// (codon-archive.invalid): a load the parser starts before the loader fixes it goes there and
+	// (gooder-capture.invalid): a load the parser starts before the loader fixes it goes there and
 	// fails at DNS. Those are not escapes; what the loader could not serve is in its `misses`.
-	const internal = (u: string) => u === own || /^(blob:|data:|about:)/.test(u) || u.startsWith('https://codon-archive.invalid/');
+	const internal = (u: string) => u === own || /^(blob:|data:|about:)/.test(u) || u.startsWith('https://gooder-capture.invalid/');
 	page.on('request', (req) => {
 		const u = req.url();
 		if (internal(u)) {

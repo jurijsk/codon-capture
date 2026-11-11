@@ -2,14 +2,14 @@
  * pack.ts — pack an archive FOLDER (capture.ts's output, or any folder with an HTML entry and
  * the files it uses) into ONE self-serving HTML file.
  *
- *   codon-capture pack <archive-dir> <out.html> [--entry index.html] [--origin URL] [--verify]
+ *   gooder-capture pack <archive-dir> <out.html> [--entry index.html] [--origin URL] [--verify]
  *
  * The packed file is the entry page with three changes, nothing else:
  *  1. loader.ts, compiled to JavaScript, first in <head> — the runtime that serves the page's resources from inside the
  *     file (fetch, XHR, element loads, runtime CSS; see its header), resolving the page's URLs
  *     against `--origin` (default: `source` in the folder's archive-report.json);
  *  2. the virtual filesystem right after it: every file in the folder except the entry, as an
- *     inert <script type="text/plain" data-codon-file="…"> block — text files escaped, binaries
+ *     inert <script type="text/plain" data-gooder-capture-file="…"> block — text files escaped, binaries
  *     base64 — used or not, so a resource the page only asks for on some click is there;
  *  3. the entry's own <link rel=stylesheet> and <script src> inlined (url() inside the CSS
  *     resolved to data: URIs), because the parser starts those loads before any script runs and
@@ -27,8 +27,8 @@
  * complete pack shows no network requests and no loader misses.
  *
  * Exports `packArchive({ files, entry, origin })` for use as a library (no filesystem, no browser,
- * no Codon, no VS Code): `files` is a Map of path → { bytes: Uint8Array, type? }. Importing
- * `@jurijsk/codon-capture/pack` loads nothing else.
+ * no editor): `files` is a Map of path → { bytes: Uint8Array, type? }. Importing
+ * `gooder-capture/pack` loads nothing else.
  */
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative, extname, posix, dirname } from 'node:path';
@@ -103,7 +103,7 @@ function vfsBlock(path: string, bytes: Uint8Array, type: string): string {
 	const isText = TEXT_TYPES.test(type);
 	const enc = isText ? 'text' : 'base64';
 	const body = isText ? escapeTextBlock(Buffer.from(bytes).toString('utf8')) : Buffer.from(bytes).toString('base64');
-	return `<script type="text/plain" data-codon-file="${escapeAttr(path)}" data-type="${escapeAttr(type)}" data-enc="${enc}">${body}</script>`;
+	return `<script type="text/plain" data-gooder-capture-file="${escapeAttr(path)}" data-type="${escapeAttr(type)}" data-enc="${enc}">${body}</script>`;
 }
 function escapeAttr(s: string): string {
 	return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
@@ -111,7 +111,7 @@ function escapeAttr(s: string): string {
 
 /** The loader as a script element, configured for an HTML file at `entryPath` from `origin`. */
 export function loaderTag(origin: string, entryPath: string): string {
-	return `<script data-codon-archive data-origin="${escapeAttr(origin)}" data-entry="${escapeAttr(entryPath)}">${LOADER_SOURCE.replace(/<\/script/gi, '<\\/script')}</script>`;
+	return `<script data-gooder-capture data-origin="${escapeAttr(origin)}" data-entry="${escapeAttr(entryPath)}">${LOADER_SOURCE.replace(/<\/script/gi, '<\\/script')}</script>`;
 }
 
 /** Index just past the opening <head> tag (first one outside comments), or after <html …>, or 0. */
@@ -152,7 +152,7 @@ function dataUri(bytes: Uint8Array, type: string): string {
 }
 
 /** The host the loader gives the document as its <base>: a reserved name that resolves nowhere. */
-export const ALIAS_HOST = 'https://codon-archive.invalid';
+export const ALIAS_HOST = 'https://gooder-capture.invalid';
 
 /**
  * ES module `code` that lives at `fromPath`, with every RELATIVE specifier the archive holds
@@ -224,7 +224,7 @@ export function inlineStaticLoads(html: string, entryPath: string, files: Archiv
 		edits.push({
 			start: m.index,
 			end: m.index + tag.length,
-			text: `<style data-codon-inlined-from="${escapeAttr(href)}"${media ? ` media="${escapeAttr(media)}"` : ''}>\n${css.replace(/<\/style/gi, '<\\/style')}\n</style>`,
+			text: `<style data-gooder-capture-inlined-from="${escapeAttr(href)}"${media ? ` media="${escapeAttr(media)}"` : ''}>\n${css.replace(/<\/style/gi, '<\\/style')}\n</style>`,
 		});
 	}
 	const scriptRe = /<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi;
@@ -258,7 +258,7 @@ export function inlineStaticLoads(html: string, entryPath: string, files: Archiv
 		if (!key || !f) {
 			continue;
 		}
-		const cleaned = attrs.replace(/\s*(?<![\w-])src=["'][^"']+["']/i, '') + ` data-codon-inlined-from="${escapeAttr(src)}"`;
+		const cleaned = attrs.replace(/\s*(?<![\w-])src=["'][^"']+["']/i, '') + ` data-gooder-capture-inlined-from="${escapeAttr(src)}"`;
 		let body = Buffer.from(f.bytes).toString('utf8');
 		if (isModule) {
 			// Inlined, the module's relative specifiers would resolve against the entry; rewrite
@@ -333,7 +333,7 @@ export function packArchive({ files, entry = 'index.html', origin }: { files: Ar
 		}
 	}
 	if (modules.length) {
-		blocks.push(`<script>window.__codonArchive.importMap(${JSON.stringify(modules).replace(/</g, '\\u003c')});</script>`);
+		blocks.push(`<script>window.__gooderCapture.importMap(${JSON.stringify(modules).replace(/</g, '\\u003c')});</script>`);
 	}
 	for (const [path, f] of embedded) {
 		if (path === entry || modules.includes(path)) {

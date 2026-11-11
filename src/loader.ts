@@ -5,7 +5,7 @@
  * pack.ts compiles this file to JavaScript — a classic script, so it imports and exports nothing —
  * and embeds it first in <head>, followed by the virtual filesystem (VFS): one inert
  * block per resource,
- *     <script type="text/plain" data-codon-file="data/x.json" data-type="application/json" data-enc="text">…</script>
+ *     <script type="text/plain" data-gooder-capture-file="data/x.json" data-type="application/json" data-enc="text">…</script>
  * (`data-enc` is `text` with `\` → `\\` and `</` → `<\/` escaped, or `base64`). Decoding is lazy:
  * a resource costs nothing until something asks for it, then it becomes a Blob and a blob: URL,
  * cached. A page nested in a frame (an embedded HTML file) finds the VFS in its parent document,
@@ -35,11 +35,11 @@
  * `data-entry` on this script's element), never against the document's own URL (a blob: URL
  * resolves nothing). A URL on the original origin maps to the VFS path = its pathname; one on
  * another host maps to `_remote/<host>/<pathname>` (how capture.ts mirrors them); anything not
- * in the VFS passes through untouched, and every miss is recorded on `window.__codonArchive`.
+ * in the VFS passes through untouched, and every miss is recorded on `window.__gooderCapture`.
  */
 
-/** What the loader leaves on the page as `window.__codonArchive`. */
-interface CodonArchive {
+/** What the loader leaves on the page as `window.__gooderCapture`. */
+interface CaptureArchive {
 	origin: string;
 	entry: string;
 	has(url: string): boolean;
@@ -59,8 +59,8 @@ interface Decoded {
 
 (function () {
 	'use strict';
-	const win = window as Window & typeof globalThis & { __codonArchive?: CodonArchive };
-	if (win.__codonArchive) {
+	const win = window as Window & typeof globalThis & { __gooderCapture?: CaptureArchive };
+	if (win.__gooderCapture) {
 		return;
 	}
 	const me = document.currentScript;
@@ -74,7 +74,7 @@ interface Decoded {
 	// that exists nowhere — a reserved .invalid name — at the entry's path: every relative URL,
 	// however it is built, resolves to that host, which keyFor maps like the origin; a load the
 	// parser starts before this script can fix it fails at DNS instantly, with no traffic.
-	const ALIAS_HOST = 'https://codon-archive.invalid';
+	const ALIAS_HOST = 'https://gooder-capture.invalid';
 	if (!document.querySelector('base[href]')) {
 		const base = document.createElement('base');
 		base.setAttribute('href', ALIAS_HOST + '/' + entry);
@@ -84,11 +84,11 @@ interface Decoded {
 	// ---- the VFS: blocks in this document, else in the parent's (a nested frame) ----------------
 	let blocks: Record<string, Element> | null = null;
 	function vfsDocument(): Document {
-		if (document.querySelector('script[data-codon-file]')) {
+		if (document.querySelector('script[data-gooder-capture-file]')) {
 			return document;
 		}
 		try {
-			if (window.parent !== window && window.parent.document.querySelector('script[data-codon-file]')) {
+			if (window.parent !== window && window.parent.document.querySelector('script[data-gooder-capture-file]')) {
 				return window.parent.document;
 			}
 		} catch {
@@ -101,9 +101,9 @@ interface Decoded {
 			return blocks;
 		}
 		const map: Record<string, Element> = Object.create(null);
-		const list = vfsDocument().querySelectorAll('script[data-codon-file]');
+		const list = vfsDocument().querySelectorAll('script[data-gooder-capture-file]');
 		for (const el of list) {
-			map[el.getAttribute('data-codon-file')!] = el;
+			map[el.getAttribute('data-gooder-capture-file')!] = el;
 		}
 		// Before the parser has reached every block, keep looking up fresh; afterwards cache.
 		if (document.readyState !== 'loading') {
@@ -314,7 +314,7 @@ interface Decoded {
 		}
 		const el = node as Element;
 		const tag = el.localName;
-		if (tag === 'script' && el.hasAttribute('data-codon-file')) {
+		if (tag === 'script' && el.hasAttribute('data-gooder-capture-file')) {
 			return; // a VFS block
 		}
 		if (isResourceElement(el)) {
@@ -482,7 +482,7 @@ interface Decoded {
 		return imports;
 	}
 
-	win.__codonArchive = {
+	win.__gooderCapture = {
 		origin: origin,
 		entry: entry,
 		has: function (url: string) {
