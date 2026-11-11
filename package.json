@@ -10,15 +10,15 @@
 		"single-file",
 		"web-archive"
 	],
-	"homepage": "https://github.com/jurijsk/codon-capture#readme",
+	"homepage": "https://git.daina-labs.io/core/codon-capture",
 	"bugs": {
-		"url": "https://github.com/jurijsk/codon-capture/issues"
+		"url": "https://git.daina-labs.io/core/codon-capture/-/issues"
 	},
 	"license": "PolyForm-Noncommercial-1.0.0",
 	"author": "Jurijs Kovzels",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/jurijsk/codon-capture.git"
+		"url": "git+https://git.daina-labs.io/core/codon-capture.git"
 	},
 	"bin": {
 		"codon-capture": "dist/cli.js"
